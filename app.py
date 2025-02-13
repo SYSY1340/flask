@@ -1,21 +1,24 @@
-import os
 from flask import Flask, request, abort
 from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
 from linebot.models import MessageEvent, TextMessage, TextSendMessage
+import os
 
 app = Flask(__name__)
 
-# 從環境變數中讀取 Channel Secret 和 Access Token
-line_bot_api = LineBotApi(os.getenv('CHANNEL_ACCESS_TOKEN'))
-line_handler = WebhookHandler(os.getenv('CHANNEL_SECRET'))
+# 設定 LINE Channel Access Token 和 Secret
+LINE_CHANNEL_ACCESS_TOKEN = os.getenv("LINE_CHANNEL_ACCESS_TOKEN")
+LINE_CHANNEL_SECRET = os.getenv("LINE_CHANNEL_SECRET")
+
+line_bot_api = LineBotApi(LINE_CHANNEL_ACCESS_TOKEN)
+line_handler = WebhookHandler(LINE_CHANNEL_SECRET)
 @app.route('/')
 def home():
+    return "LINE BOT 首頁"
 
-    return "<h1>Line Bot Server</h1>"
-@app.route("/callback", methods=['POST'])
+@app.route("/callback", methods=["POST"])
 def callback():
-    signature = request.headers['X-Line-Signature']
+    signature = request.headers["X-Line-Signature"]
     body = request.get_data(as_text=True)
 
     try:
@@ -23,14 +26,17 @@ def callback():
     except InvalidSignatureError:
         abort(400)
 
-    return 'OK'
+    return "OK"
 
 @line_handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
+    user_message = event.message.text
+    reply_message = f"你說了：{user_message}"
+    
     line_bot_api.reply_message(
         event.reply_token,
-        TextSendMessage(text='你說的是：' + event.message.text)
+        TextSendMessage(text=reply_message)
     )
 
 if __name__ == "__main__":
-    app.run(port=5000)
+    app.run(port=8000)
