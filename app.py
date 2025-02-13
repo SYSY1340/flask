@@ -9,7 +9,10 @@ app = Flask(__name__)
 # 從環境變數中讀取 Channel Secret 和 Access Token
 line_bot_api = LineBotApi(os.getenv('CHANNEL_ACCESS_TOKEN'))
 line_handler = WebhookHandler(os.getenv('CHANNEL_SECRET'))
+@app.route('/')
+def home():
 
+    return "<h1>Line Bot Server</h1>"
 @app.route("/callback", methods=['POST'])
 def callback():
     signature = request.headers['X-Line-Signature']
