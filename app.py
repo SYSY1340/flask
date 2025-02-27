@@ -6,10 +6,6 @@ from linebot.models import MessageEvent, TextMessage, TextSendMessage
 import os
 from openai import OpenAI
 
-# from dotenv import load_dotenv
-# load_dotenv()
-
-
 app = Flask(__name__)
 
 # 設定 LINE Channel Access Token 和 Secret
@@ -37,7 +33,8 @@ def callback():
 @line_handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     user_message = event.message.text
-    client = OpenAI(api_key=os.getenv("OPENAI_KEY"))
+    
+    client = OpenAI(api_key=os.getenv('OPENAI_KEY'))
 
     completion = client.chat.completions.create(
         model="gpt-4o-mini",
@@ -49,7 +46,9 @@ def handle_message(event):
             }
         ]
     )
-    reply_message=completion.choices[0].message
+
+    reply_message = completion.choices[0].message.content
+
 
     
     line_bot_api.reply_message(
